@@ -9,14 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
- 
+
 app.use(express.static('public'));
-  
+
 app.set('view engine', 'ejs');
 
 
-app.get('/', (request, response) => {
-  response.render('index.ejs');
+app.get('/hello', (request, response) => {
+  response.render('pages/index.ejs');
 });
 
 app.get('/searches', (request, response) => {
@@ -24,17 +24,17 @@ app.get('/searches', (request, response) => {
 });
 
 app.post('/searches', (request, response) => {
-  
+
 
   let query = request.body.search[0];
   let titleOrAuthor = request.body.search[1];
 
   let url = 'https://www.googleapis.com/books/v1/volumes?q=';
 
-  if(titleOrAuthor === 'title'){
-    url+=`+intitle:${query}`;
-  }else if(titleOrAuthor === 'author'){
-    url+=`+inauthor:${query}`;
+  if (titleOrAuthor === 'title') {
+    url += `+intitle:${query}`;
+  } else if (titleOrAuthor === 'author') {
+    url += `+inauthor:${query}`;
   }
 
   superagent.get(url)
@@ -47,7 +47,7 @@ app.post('/searches', (request, response) => {
 
       console.log(finalBookArray)
 
-      response.render('show.ejs', {searchResults: finalBookArray})
+      response.render('show.ejs', { searchResults: finalBookArray })
     })
 })
 
