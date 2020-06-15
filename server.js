@@ -14,6 +14,9 @@ app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 
+app.get('/', (request, response) => {
+  response.render('Hello, I like pizza.');
+});
 
 app.get('/hello', (request, response) => {
   response.render('pages/index.ejs');
