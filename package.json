@@ -1,0 +1,20 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "# Project Name",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MartaAnthony/book_app.git"
+  },
+  "author": "Marta Anthony",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MartaAnthony/book_app/issues"
+  },
+  "homepage": "https://github.com/MartaAnthony/book_app#readme"
+}
