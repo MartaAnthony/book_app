@@ -14,16 +14,16 @@ app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 
-app.get('/', (request, response) => {
-  response.render('Hello, I like pizza.');
-});
+// app.get('/', (request, response) => {
+//   response.render('Hello, I like pizza.');
+// });
 
 app.get('/hello', (request, response) => {
   response.render('pages/index.ejs');
 });
 
 app.get('/searches', (request, response) => {
-  response.render('./searches/new.ejs');
+  response.render('pages/searches/new.ejs');
 });
 
 app.post('/searches', (request, response) => {
