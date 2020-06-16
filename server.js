@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const pg = require('pg');
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -19,12 +20,19 @@ const errorAlert = (err, response) => {
   console.log('error', err);
 }
 
-// app.get('/', (request, response) => {
-//   response.render('Hello, I like pizza.');
-// });
+// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE
+app.get('/', (request, response) => {
+  // let { title, author, description, image_url, isbn, bookshelf } = request.body;
+  // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
 
-app.get('/hello', (request, response) => {
-  response.status(200).render('pages/index.ejs');
+  let sql = 'SELECT * FROM books';
+
+  client.query(sql)
+    .then(sqlResults => {
+      let books = sqlResults.rows;
+      // let counts = sqlResults.rowCount;
+      response.status(200).render('pages/index.ejs', { myBooks: books });
+    })
 });
 
 app.get('/searches/new', (request, response) => {
@@ -64,24 +72,20 @@ app.post('/searches', (request, response) => {
 })
 
 function Book(info) {
+  let regex = /^(http:\/\/)/g;
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
   this.title = info.title ? info.title : 'No title available.';
   this.author = info.authors ? info.authors[0] : 'No author available.';
   this.description = info.description ? info.description : 'No description available.';
   // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
-  // this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
-  let image = info.imageLinks.thumbnail;
-  let regex = /^https/;
-
-  if (regex.test(image)) {
-    this.image_url = image;
-  } else {
-    let firstPart = 'https';
-    let secondPart = image.slice(4);
-    this.image_url = firstPart + secondPart;
-  }
+  this.image_url = info.imageLinks ? info.imageLinks.thumbnail.replace(regex, 'https://') : placeholderImg;
 }
 
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-})
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.log(err));
+client.connect()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`listening on ${PORT}`);
+    })
+  })
