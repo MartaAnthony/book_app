@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Paprika&family=Playfair+Display:wght@700;900&display=swap');
+
+* {
+  margin: auto;
+}
+body {
+  background-color: rgb(177, 204, 219);
+  color: rgb(54, 54, 54);
+}
