@@ -23,11 +23,11 @@ const errorAlert = (err, response) => {
 //   response.render('Hello, I like pizza.');
 // });
 
-app.get('/hello', (request, response) => {
+app.get('/', (request, response) => {
   response.render('pages/index.ejs');
 });
 
-app.get('/searches', (request, response) => {
+app.get('/searches/new', (request, response) => {
   response.render('pages/searches/new.ejs');
 });
 
@@ -52,26 +52,26 @@ app.post('/searches', (request, response) => {
     // .query(queryParams);
     .then(res => {
       let bookArr = res.body.items;
-      console.log(bookArr);
+      // console.log(bookArr);
 
       const finalBookArr = bookArr.map(book => {
         return new Book(book.volumeInfo);
       });
 
-      console.log(finalBookArr)
-
+      // console.log(finalBookArr)
       response.render('pages/searches/show.ejs', { searchResults: finalBookArr })
     }).catch(error => errorAlert(error, response));
 })
 
 function Book(info) {
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
-  // console.log(info);
-  this.title = info.title ? info.title : 'No title available.';
-  this.author = info.authors ? info.authors : 'No author available.';
-  // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
 
-  this.image_url = info.imageLinks.thumbnail ? info.imageLinks.thumbnail : placeholderImg;
+  this.title = info.title ? info.title : 'No title available.';
+
+  this.author = info.authors ? info.authors[0] : 'No author available.';
+
+  // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
+  this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
 }
 
 app.listen(PORT, () => {
