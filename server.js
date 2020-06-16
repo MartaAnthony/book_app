@@ -27,7 +27,7 @@ app.get('/hello', (request, response) => {
   response.render('pages/index.ejs');
 });
 
-app.get('/searches', (request, response) => {
+app.get('/searches/new', (request, response) => {
   response.render('pages/searches/new.ejs');
 });
 
@@ -52,7 +52,7 @@ app.post('/searches', (request, response) => {
     // .query(queryParams);
     .then(res => {
       let bookArr = res.body.items;
-      console.log(bookArr);
+      console.log(res.body);
 
       const finalBookArr = bookArr.map(book => {
         return new Book(book.volumeInfo);
@@ -68,11 +68,15 @@ function Book(info) {
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
   // console.log(info);
   this.title = info.title ? info.title : 'No title available.';
-  this.author = info.authors ? info.authors : 'No author available.';
+  this.author = info.authors ? info.authors[0] : 'No author available.';
   // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
 
-  this.image_url = info.imageLinks.thumbnail ? info.imageLinks.thumbnail : placeholderImg;
+  this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
 }
+
+app.get('*', (request, response) => {
+  response.status(404).send('Sorry, this is not a webpage');
+});
 
 app.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
