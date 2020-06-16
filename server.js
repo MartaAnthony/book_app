@@ -23,8 +23,8 @@ const errorAlert = (err, response) => {
 //   response.render('Hello, I like pizza.');
 // });
 
-app.get('/', (request, response) => {
-  response.render('pages/index.ejs');
+app.get('/hello', (request, response) => {
+  response.status(200).render('pages/index.ejs');
 });
 
 app.get('/searches/new', (request, response) => {
@@ -59,19 +59,27 @@ app.post('/searches', (request, response) => {
       });
 
       // console.log(finalBookArr)
-      response.render('pages/searches/show.ejs', { searchResults: finalBookArr })
+      response.status(200).render('pages/searches/show.ejs', { searchResults: finalBookArr })
     }).catch(error => errorAlert(error, response));
 })
 
 function Book(info) {
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
-
   this.title = info.title ? info.title : 'No title available.';
-
   this.author = info.authors ? info.authors[0] : 'No author available.';
-
+  this.description = info.description ? info.description : 'No description available.';
   // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
-  this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
+  // this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
+  let image = info.imageLinks.thumbnail;
+  let regex = /^https/;
+
+  if (regex.test(image)) {
+    this.image_url = image;
+  } else {
+    let firstPart = 'https';
+    let secondPart = image.slice(4);
+    this.image_url = firstPart + secondPart;
+  }
 }
 
 app.listen(PORT, () => {
