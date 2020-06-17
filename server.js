@@ -17,15 +17,17 @@ const errorAlert = (err, response) => {
   response.status(500).send('Sorry, something went wrong');
   console.log('error', err);
 }
+/////////////////////////ROUTES//////////////////////////////
 
-app.get('/', getBooks);
+app.get('/', homeRoute);
 app.get('/books/:id', getOneBook);
 app.get('/searches/new', showForm);
+app.post('/searches/new', addBook);
 
-// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE
-function getBooks(request, response) {
-  // let { title, author, description, image_url, isbn, bookshelf } = request.body;
-  // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
+/////////////////////////////////////////////////////////////
+
+// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYS FAVORITES
+function homeRoute(request, response) {
   let sql = 'SELECT * FROM books;';
   client.query(sql)
     .then(sqlResults => {
@@ -49,6 +51,20 @@ function getOneBook(request, response) {
 function showForm(request, response) {
   response.render('pages/searches/new.ejs');
 }
+
+// adds the user response from the forms
+function addBook(request, response) {
+  let { title, author, description, image_url, isbn, bookshelf } = request.body;
+  let sql = 'INSERT INTO books (title, author, description, image_url, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID;';
+  let safeValues = [title, author, description, image_url, isbn, bookshelf];
+
+  client.query(sql, safeValues)
+    .then(results => {
+      let allResults = results.rows;
+      response.redirect(`/books/${allResults}`)
+    })
+}
+
 
 app.post('/searches', (request, response) => {
   console.log(request.body);
