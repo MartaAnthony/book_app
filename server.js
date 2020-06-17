@@ -10,9 +10,7 @@ const PORT = process.env.PORT || 3000;
 const pg = require('pg');
 
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static('public'));
-
 app.set('view engine', 'ejs');
 
 const errorAlert = (err, response) => {
@@ -20,34 +18,37 @@ const errorAlert = (err, response) => {
   console.log('error', err);
 }
 
+app.get('/', getBooks);
+app.get('/books/:id', getOneBook);
+app.get('/searches/new', showForm);
+
 // THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE
-app.get('/', (request, response) => {
+function getBooks(request, response) {
   // let { title, author, description, image_url, isbn, bookshelf } = request.body;
   // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
-  let sql = 'SELECT * FROM books';
+  let sql = 'SELECT * FROM books;';
   client.query(sql)
     .then(sqlResults => {
       let books = sqlResults.rows;
       // let counts = sqlResults.rowCount;
       response.status(200).render('pages/index.ejs', { myBooks: books });
     })
-});
-
-app.get('/books/:id', getOneBook);
+}
+// displays one book for details.ejs
 function getOneBook(request, response) {
   let id = request.params.id;
   let sql = 'SELECT * FROM books WHERE id=$1;';
   let safeValues = [id];
-  console.log(request.params);
+
   client.query(sql, safeValues)
     .then(sqlResults => {
-      response.status(200).render('detail.ejs', { oneBook: sqlResults.rows[0] });
+      response.status(200).render('pages/searches/detail.ejs', { oneBook: sqlResults.rows[0] });
     })
 }
-
-app.get('/searches/new', (request, response) => {
+//shows form on new.ejs
+function showForm(request, response) {
   response.render('pages/searches/new.ejs');
-});
+}
 
 app.post('/searches', (request, response) => {
   console.log(request.body);
