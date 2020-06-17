@@ -19,7 +19,7 @@ const errorAlert = (err, response) => {
 }
 /////////////////////////ROUTES//////////////////////////////
 
-app.get('/', homeRoute);
+app.get('/home', homeRoute);
 app.get('/books/:id', getOneBook);
 app.get('/searches/new', showForm);
 app.post('/searches/new', addBook);
@@ -36,7 +36,7 @@ function homeRoute(request, response) {
       response.status(200).render('pages/index.ejs', { myBooks: books });
     }).catch(error => errorAlert(error, response));
 }
-// displays one book for details.ejs
+// route books/:id  - displays one book for details.ejs
 function getOneBook(request, response) {
   let id = request.params.id;
   let sql = 'SELECT * FROM books WHERE id=$1;';
@@ -47,12 +47,12 @@ function getOneBook(request, response) {
       response.status(200).render('pages/searches/detail.ejs', { oneBook: sqlResults.rows[0] });
     }).catch(error => errorAlert(error, response));
 }
-//shows form on new.ejs
+// route searches/new - shows form on new.ejs
 function showForm(request, response) {
   response.render('pages/searches/new.ejs');
 }
 
-// adds the user response from the forms
+// route searches/new - adds the user response from the forms
 function addBook(request, response) {
   let { title, author, description, image_url, isbn, bookshelf } = request.body;
   let sql = 'INSERT INTO books (title, author, description, image_url, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID;';
