@@ -24,7 +24,7 @@ app.get('/books/:id', getOneBook);
 app.get('/searches/new', showForm);
 app.post('/searches/new', addBook);
 
-/////////////////////////////////////////////////////////////
+////////////////////////FUNCTIONS////////////////////////////
 
 // THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYING FAVORITES
 function homeRoute(request, response) {
@@ -90,15 +90,18 @@ app.post('/searches', (request, response) => {
     }).catch(error => errorAlert(error, response));
 })
 
+////////////////////CONSTRUCTORS//////////////////////
+
 function Book(info) {
   let regex = /^(http:\/\/)/g;
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
   this.title = info.title ? info.title : 'No title available.';
   this.author = info.authors ? info.authors[0] : 'No author available.';
   this.description = info.description ? info.description : 'No description available.';
-  // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
   this.image_url = info.imageLinks ? info.imageLinks.thumbnail.replace(regex, 'https://') : placeholderImg;
 }
+
+//////////////////////////////////////////////////////
 
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.log(err));

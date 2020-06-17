@@ -2,29 +2,26 @@
 <html lang="en">
 
 <head>
+  <title>Book App</title>
   <link href="base.css" rel="stylesheet" type="text/css" />
   <link href="layout.css" rel="stylesheet" type="text/css" />
   <link href="modules.css" rel="stylesheet" type="text/css" />
-  <title>Book App</title>
 </head>
 
 <body>
   <main>
-    <h1>My Book Collection</h1>
-
-    <section>
+    <div class="books">
+      <h1>My Book Collection</h1>
       <% myBooks.forEach(book => {%>
-      <form action='/' method='post'>
-        <div>
-          <img src="<%= book.image_url %>">
-          <h3 class="title"><%= book.title %></h3>
-          <h3 class="author"><%= book.author %></h3>
-          <p class="description"><%= book.description %></p>
-          <a href="/books/<%= book.id %>">Details</a>
-        </div>
-      </form>
+      <section class="book">
+        <img src="<%= book.image_url %>">
+        <h3 class="title"><%= book.title %></h3>
+        <h3 class="author"><%= book.author %></h3>
+        <p class="description"><%= book.description %></p>
+        <a href="/books/<%= book.id %>">Details</a>
+      </section>
       <% }) %>
-    </section>
+    </div>
   </main>
 </body>
 
