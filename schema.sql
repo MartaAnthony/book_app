@@ -10,11 +10,3 @@ CREATE TABLE books
   isbn VARCHAR(255),
   bookshelf VARCHAR(255)
 );
-
--- INSERT INTO books
---   (title, author, description, image_url)
--- VALUES
---   ('Harry Potter', 'JK Rowlings', 'kajgkldjafoideojlkadjiofdcajdklfjdojla', 'gjlkajfdjoijl;a;gmdkjiajlsjs');
-
--- SELECT *
--- FROM books;

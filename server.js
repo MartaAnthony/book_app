@@ -24,9 +24,7 @@ const errorAlert = (err, response) => {
 app.get('/', (request, response) => {
   // let { title, author, description, image_url, isbn, bookshelf } = request.body;
   // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
-
   let sql = 'SELECT * FROM books';
-
   client.query(sql)
     .then(sqlResults => {
       let books = sqlResults.rows;
@@ -34,6 +32,18 @@ app.get('/', (request, response) => {
       response.status(200).render('pages/index.ejs', { myBooks: books });
     })
 });
+
+app.get('/books/:id', getOneBook);
+function getOneBook(request, response) {
+  let id = request.params.book_id;
+  let sql = 'SELECT * FROM books WHERE id=$1;';
+  let safeValues = [id];
+
+  client.query(sql, safeValues)
+    .then(sqlResults => {
+      response.status(200).render('detail.ejs', { oneBook: sqlResults.rows[0] });
+    })
+}
 
 app.get('/searches/new', (request, response) => {
   response.render('pages/searches/new.ejs');
