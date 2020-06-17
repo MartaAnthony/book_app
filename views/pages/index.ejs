@@ -10,9 +10,21 @@
 
 <body>
   <main>
-    <h1>Hello World</h1>
-    <h4>My Book Collection</h4>
+    <h1>My Book Collection</h1>
 
+    <section>
+      <% myBooks.forEach(book => {%>
+      <!--  addBook route will be where we append  -on a post method -->
+      <form action='/' method='post'></form>
+      <div>
+        <span><%= book.title %></span>
+        <span><%= book.author %></span>
+        <span><%= book.description %></span>
+        <span><%= book.image_url %></span>
+      </div>
+      </form>
+      <% }) %>
+    </section>
   </main>
 </body>
 

@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const pg = require('pg');
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -19,13 +20,30 @@ const errorAlert = (err, response) => {
   console.log('error', err);
 }
 
-// app.get('/', (request, response) => {
-//   response.render('Hello, I like pizza.');
-// });
-
-app.get('/hello', (request, response) => {
-  response.status(200).render('pages/index.ejs');
+// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE
+app.get('/', (request, response) => {
+  // let { title, author, description, image_url, isbn, bookshelf } = request.body;
+  // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
+  let sql = 'SELECT * FROM books';
+  client.query(sql)
+    .then(sqlResults => {
+      let books = sqlResults.rows;
+      // let counts = sqlResults.rowCount;
+      response.status(200).render('pages/index.ejs', { myBooks: books });
+    })
 });
+
+app.get('/books/:id', getOneBook);
+function getOneBook(request, response) {
+  let id = request.params.id;
+  let sql = 'SELECT * FROM books WHERE id=$1;';
+  let safeValues = [id];
+  console.log(request.params);
+  client.query(sql, safeValues)
+    .then(sqlResults => {
+      response.status(200).render('detail.ejs', { oneBook: sqlResults.rows[0] });
+    })
+}
 
 app.get('/searches/new', (request, response) => {
   response.render('pages/searches/new.ejs');
@@ -35,12 +53,7 @@ app.post('/searches', (request, response) => {
   console.log(request.body);
   let query = request.body.search;
   let titleOrAuthor = request.body.search[1];
-
   let url = 'https://www.googleapis.com/books/v1/volumes?q=';
-
-  // const queryParams = {
-  //   maxResults: 10
-  // }
 
   if (titleOrAuthor === 'title') {
     url += `+intitle:${query}`;
@@ -53,35 +66,29 @@ app.post('/searches', (request, response) => {
     .then(res => {
       let bookArr = res.body.items;
       // console.log(bookArr);
-
       const finalBookArr = bookArr.map(book => {
         return new Book(book.volumeInfo);
       });
-
       // console.log(finalBookArr)
       response.status(200).render('pages/searches/show.ejs', { searchResults: finalBookArr })
     }).catch(error => errorAlert(error, response));
 })
 
 function Book(info) {
+  let regex = /^(http:\/\/)/g;
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
   this.title = info.title ? info.title : 'No title available.';
   this.author = info.authors ? info.authors[0] : 'No author available.';
   this.description = info.description ? info.description : 'No description available.';
   // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
-  // this.image_url = info.imageLinks ? info.imageLinks.thumbnail : placeholderImg;
-  let image = info.imageLinks.thumbnail;
-  let regex = /^https/;
-
-  if (regex.test(image)) {
-    this.image_url = image;
-  } else {
-    let firstPart = 'https';
-    let secondPart = image.slice(4);
-    this.image_url = firstPart + secondPart;
-  }
+  this.image_url = info.imageLinks ? info.imageLinks.thumbnail.replace(regex, 'https://') : placeholderImg;
 }
 
-app.listen(PORT, () => {
-  console.log(`listening on ${PORT}`);
-})
+const client = new pg.Client(process.env.DATABASE_URL);
+client.on('error', err => console.log(err));
+client.connect()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`listening on ${PORT}`);
+    })
+  })
