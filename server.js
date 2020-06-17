@@ -10,44 +10,60 @@ const PORT = process.env.PORT || 3000;
 const pg = require('pg');
 
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static('public'));
-
 app.set('view engine', 'ejs');
 
 const errorAlert = (err, response) => {
   response.status(500).send('Sorry, something went wrong');
   console.log('error', err);
 }
+/////////////////////////ROUTES//////////////////////////////
 
-// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE
-app.get('/', (request, response) => {
-  // let { title, author, description, image_url, isbn, bookshelf } = request.body;
-  // let safeValues = [title, author, description, image_url, isbn, bookshelf]; 
-  let sql = 'SELECT * FROM books';
+app.get('/home', homeRoute);
+app.get('/books/:id', getOneBook);
+app.get('/searches/new', showForm);
+app.post('/searches/new', addBook);
+
+////////////////////////FUNCTIONS////////////////////////////
+
+// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYING FAVORITES
+function homeRoute(request, response) {
+  let sql = 'SELECT * FROM books;';
   client.query(sql)
     .then(sqlResults => {
       let books = sqlResults.rows;
       // let counts = sqlResults.rowCount;
       response.status(200).render('pages/index.ejs', { myBooks: books });
-    })
-});
-
-app.get('/books/:id', getOneBook);
+    }).catch(error => errorAlert(error, response));
+}
+// route books/:id  - displays one book for details.ejs
 function getOneBook(request, response) {
   let id = request.params.id;
   let sql = 'SELECT * FROM books WHERE id=$1;';
   let safeValues = [id];
-  console.log(request.params);
+
   client.query(sql, safeValues)
     .then(sqlResults => {
-      response.status(200).render('detail.ejs', { oneBook: sqlResults.rows[0] });
-    })
+      response.status(200).render('pages/searches/detail.ejs', { oneBook: sqlResults.rows[0] });
+    }).catch(error => errorAlert(error, response));
+}
+// route searches/new - shows form on new.ejs
+function showForm(request, response) {
+  response.render('pages/searches/new.ejs');
 }
 
-app.get('/searches/new', (request, response) => {
-  response.render('pages/searches/new.ejs');
-});
+// route searches/new - adds the user response from the forms
+function addBook(request, response) {
+  let { title, author, description, image_url, isbn, bookshelf } = request.body;
+  let sql = 'INSERT INTO books (title, author, description, image_url, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID;';
+  let safeValues = [title, author, description, image_url, isbn, bookshelf];
+
+  client.query(sql, safeValues)
+    .then(results => {
+      let id = results.rows[0].id;
+      response.redirect(`/books/${id}`)
+    }).catch(error => errorAlert(error, response));
+}
 
 app.post('/searches', (request, response) => {
   console.log(request.body);
@@ -74,15 +90,18 @@ app.post('/searches', (request, response) => {
     }).catch(error => errorAlert(error, response));
 })
 
+////////////////////CONSTRUCTORS//////////////////////
+
 function Book(info) {
   let regex = /^(http:\/\/)/g;
   const placeholderImg = 'https://i.imgur.com/J5LVHEL.jpg';
   this.title = info.title ? info.title : 'No title available.';
   this.author = info.authors ? info.authors[0] : 'No author available.';
   this.description = info.description ? info.description : 'No description available.';
-  // some of the image links are an http reference to a url.. needs to be replaces with https and rest of url ... slice or regex
   this.image_url = info.imageLinks ? info.imageLinks.thumbnail.replace(regex, 'https://') : placeholderImg;
 }
+
+//////////////////////////////////////////////////////
 
 const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.log(err));
