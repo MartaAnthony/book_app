@@ -26,7 +26,7 @@ app.post('/searches/new', addBook);
 
 /////////////////////////////////////////////////////////////
 
-// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYS FAVORITES
+// THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYING FAVORITES
 function homeRoute(request, response) {
   let sql = 'SELECT * FROM books;';
   client.query(sql)
@@ -34,7 +34,7 @@ function homeRoute(request, response) {
       let books = sqlResults.rows;
       // let counts = sqlResults.rowCount;
       response.status(200).render('pages/index.ejs', { myBooks: books });
-    })
+    }).catch(error => errorAlert(error, response));
 }
 // displays one book for details.ejs
 function getOneBook(request, response) {
@@ -45,7 +45,7 @@ function getOneBook(request, response) {
   client.query(sql, safeValues)
     .then(sqlResults => {
       response.status(200).render('pages/searches/detail.ejs', { oneBook: sqlResults.rows[0] });
-    })
+    }).catch(error => errorAlert(error, response));
 }
 //shows form on new.ejs
 function showForm(request, response) {
@@ -60,11 +60,10 @@ function addBook(request, response) {
 
   client.query(sql, safeValues)
     .then(results => {
-      let allResults = results.rows;
-      response.redirect(`/books/${allResults}`)
-    })
+      let id = results.rows[0].id;
+      response.redirect(`/books/${id}`)
+    }).catch(error => errorAlert(error, response));
 }
-
 
 app.post('/searches', (request, response) => {
   console.log(request.body);
