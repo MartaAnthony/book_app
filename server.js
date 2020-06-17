@@ -4,38 +4,49 @@ const express = require('express');
 const superagent = require('superagent');
 require('ejs');
 require('dotenv').config();
-
+const pg = require('pg');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const pg = require('pg');
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-
+const client = new pg.Client(process.env.DATABASE_URL);
 const errorAlert = (err, response) => {
   response.status(500).send('Sorry, something went wrong');
   console.log('error', err);
 }
+
 /////////////////////////ROUTES//////////////////////////////
 
-app.get('/home', homeRoute);
-app.get('/books/:id', getOneBook);
-app.get('/searches/new', showForm);
+// this allows us to see the request.body
+app.use(express.urlencoded({ extended: true }));
+// serve files from public folder
+app.use(express.static('public'));
+// allows ejs to work - look in views folder for your template
+app.set('view engine', 'ejs');
+
+app.get('/', homeRoute); // should render home page that shows favorite books
+app.get('/books/:id', getOneBook); // shows detail page
+app.get('/searches/new', showForm); // shows search form
 app.post('/searches/new', addBook);
+app.post('/searches', getSearchResults);
+
+// for all routes not found -- double check this later !!!!!!!!!!!!!
+app.get('*', (request, response) => {
+  response.status(404).send('Sorry, no page found.')
+})
 
 ////////////////////////FUNCTIONS////////////////////////////
 
 // THIS HOME ROUTE IS PULLING ALL DATA FROM DATABASE THEN DISPLAYING FAVORITES
+// if else statement in this function needed ??????????????
 function homeRoute(request, response) {
   let sql = 'SELECT * FROM books;';
   client.query(sql)
     .then(sqlResults => {
       let books = sqlResults.rows;
-      // let counts = sqlResults.rowCount;
-      response.status(200).render('pages/index.ejs', { myBooks: books });
+      let bookCount = sqlResults.rowCount;
+      response.status(200).render('pages/index.ejs', { myBooks: books, totalBooks: bookCount });
     }).catch(error => errorAlert(error, response));
 }
+
 // route books/:id  - displays one book for details.ejs
 function getOneBook(request, response) {
   let id = request.params.id;
@@ -47,16 +58,18 @@ function getOneBook(request, response) {
       response.status(200).render('pages/searches/detail.ejs', { oneBook: sqlResults.rows[0] });
     }).catch(error => errorAlert(error, response));
 }
+
 // route searches/new - shows form on new.ejs
+// SHOWS SEARCH FORM
 function showForm(request, response) {
   response.render('pages/searches/new.ejs');
 }
 
-// route searches/new - adds the user response from the forms
+// route searches/new - adds the user response from the show.ejs form 
 function addBook(request, response) {
   let { title, author, description, image_url, isbn, bookshelf } = request.body;
-  let sql = 'INSERT INTO books (title, author, description, image_url, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID;';
-  let safeValues = [title, author, description, image_url, isbn, bookshelf];
+  let sql = 'INSERT INTO books (title, author, description, image_url, isbn) VALUES ($1, $2, $3, $4, $5) RETURNING id;';
+  let safeValues = [title, author, description, image_url, isbn];
 
   client.query(sql, safeValues)
     .then(results => {
@@ -65,7 +78,8 @@ function addBook(request, response) {
     }).catch(error => errorAlert(error, response));
 }
 
-app.post('/searches', (request, response) => {
+
+function getSearchResults(request, response) {
   console.log(request.body);
   let query = request.body.search;
   let titleOrAuthor = request.body.search[1];
@@ -88,7 +102,7 @@ app.post('/searches', (request, response) => {
       // console.log(finalBookArr)
       response.status(200).render('pages/searches/show.ejs', { searchResults: finalBookArr })
     }).catch(error => errorAlert(error, response));
-})
+}
 
 ////////////////////CONSTRUCTORS//////////////////////
 
@@ -103,7 +117,6 @@ function Book(info) {
 
 //////////////////////////////////////////////////////
 
-const client = new pg.Client(process.env.DATABASE_URL);
 client.on('error', err => console.log(err));
 client.connect()
   .then(() => {
