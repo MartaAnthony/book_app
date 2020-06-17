@@ -35,10 +35,10 @@ app.get('/', (request, response) => {
 
 app.get('/books/:id', getOneBook);
 function getOneBook(request, response) {
-  let id = request.params.book_id;
+  let id = request.params.id;
   let sql = 'SELECT * FROM books WHERE id=$1;';
   let safeValues = [id];
-
+  console.log(request.params);
   client.query(sql, safeValues)
     .then(sqlResults => {
       response.status(200).render('detail.ejs', { oneBook: sqlResults.rows[0] });
@@ -53,12 +53,7 @@ app.post('/searches', (request, response) => {
   console.log(request.body);
   let query = request.body.search;
   let titleOrAuthor = request.body.search[1];
-
   let url = 'https://www.googleapis.com/books/v1/volumes?q=';
-
-  // const queryParams = {
-  //   maxResults: 10
-  // }
 
   if (titleOrAuthor === 'title') {
     url += `+intitle:${query}`;
@@ -71,11 +66,9 @@ app.post('/searches', (request, response) => {
     .then(res => {
       let bookArr = res.body.items;
       // console.log(bookArr);
-
       const finalBookArr = bookArr.map(book => {
         return new Book(book.volumeInfo);
       });
-
       // console.log(finalBookArr)
       response.status(200).render('pages/searches/show.ejs', { searchResults: finalBookArr })
     }).catch(error => errorAlert(error, response));

@@ -11,19 +11,19 @@
 <body>
   <main>
     <div class="books">
-      <% searchResults.forEach( book => { %>
-      <form action="/addBook" method="post">
+      <% searchResults.forEach(book => { %>
+      <%console.log(book);%>
+      <form action="/books/ <%= book.id %>" method="post">
         <section class="book">
           <img src="<%= book.image_url %>">
           <h3 class="title"><%= book.title %></h3>
           <h3 class="author"><%= book.author %></h3>
           <p class="description"><%= book.description %></p>
-          <a href="/detail.ejs/<%= /books/:id %>">show details</a>
         </section>
-        <input type="hidden" name="title" value=<%= book.title %> />
-        <input type="hidden" name="author" value=<%= book.author %> />
-        <input type="hidden" name="description" value=<%= book.description %> />
-        <button>Add to favorites</button>
+        <input type="hidden" name="title" value="<%= book.title %>" />
+        <input type="hidden" name="author" value="<%= book.author %>" />
+        <input type="hidden" name="description" value="<%= book.description %>" />
+        <button>Add to Favorites</button>
       </form>
       <% }) %>
     </div>
