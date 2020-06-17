@@ -6,6 +6,7 @@ require('ejs');
 require('dotenv').config();
 const pg = require('pg');
 const app = express();
+const methodOverride = require('method-override');
 const PORT = process.env.PORT || 3000;
 const client = new pg.Client(process.env.DATABASE_URL);
 const errorAlert = (err, response) => {
@@ -22,11 +23,43 @@ app.use(express.static('public'));
 // allows ejs to work - look in views folder for your template
 app.set('view engine', 'ejs');
 
+// lets us translate our post to a put in html
+app.use(methodOverride('_method'));
+
 app.get('/', homeRoute); // should render home page that shows favorite books
 app.get('/books/:id', getOneBook); // shows detail page
 app.get('/searches/new', showForm); // shows search form
 app.post('/searches/new', addBook);
 app.post('/searches', getSearchResults);
+
+
+
+///////////////////////////////NEW CODE FROM TODAY//////////////////////////////////////////
+app.put('/update/:book_id', updateBook);
+
+function updateBook(request, response) {
+  console.log('this is our params', request.params)
+
+  let bookId = request.params.book_id;
+
+  // this console log refers to form on detail.ejs page
+  console.log('form information to be updated', request.body)
+
+  let { title, author, description, image_url, isbn } = request.body;
+
+  let sql = 'UPDATE books SET title=$1, author=$2, description=$3, image_url=$4, isbn=$5 WHERE id=$6;';
+
+  let safeValues = [title, author, description, image_url, isbn, bookId];
+
+  client.query(sql, safeValues)
+    .then(sqlResults => {
+      response.redirect(`/books/${bookId}`)
+    })
+
+
+}
+
+
 
 // for all routes not found -- double check this later !!!!!!!!!!!!!
 app.get('*', (request, response) => {

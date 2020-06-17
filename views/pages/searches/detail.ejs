@@ -20,6 +20,12 @@
       <a href="/">View Favorites</a>
       <a href="/searches/new/">Find Books</a>
     </div>
+    <form action="/update/<%= oneBook.id %>?_method=PUT" method="post">
+      <input type="text" name="title" value="<%-oneBook.title%>" placeholder="Book Title">
+      <input type="text" name="author" value="<%-oneBook.author%>" placeholder="author">
+      <input type="text" name="description" value="<%-oneBook.description%>" placeholder="Book Description">
+      <button>Submit</button>
+    </form>
   </main>
 </body>
 
