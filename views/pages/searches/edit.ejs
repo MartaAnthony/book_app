@@ -1,0 +1,14 @@
+<img src="<%=oneBook.image_url%>">
+<form action="/update/<%= oneBook.id %>?_method=PUT" method="post">
+  <input type="text" name="image_url" value="<%= oneBook.image_url %>">
+  <input type="text" name="title" value="<%-oneBook.title%>" placeholder="Book Title">
+  <input type="text" name="author" value="<%-oneBook.author%>" placeholder="author">
+  <input type="text" name="bookshelf" value="<%-oneBook.bookshelf%>" placeholder="bookshelf">
+  <input type="text" name="isbn" value="<%-oneBook.isbn%>" placeholder="isbn">
+  <textarea type="textarea" name="description" cols="40" rows="20"
+    placeholder="Book Description"><%-oneBook.description%></textarea>
+  <select name=“” id=“”>
+    <option value=""></option>
+  </select>
+  <button>Submit</button>
+</form>
