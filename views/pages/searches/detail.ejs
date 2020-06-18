@@ -15,11 +15,17 @@
         <img src="<%= oneBook.image_url %>">
         <h3 class="title"><%= oneBook.title %></h3>
         <h3 class="author"><%= oneBook.author %></h3>
+        <p class="bookshelf"><%= oneBook.bookshelf %></p>
         <p class="description"><%= oneBook.description %></p>
+        <p class="isbn"><%= oneBook.isbn %></p>
       </section>
       <a href="/">View Favorites</a>
       <a href="/searches/new/">Find Books</a>
     </div>
+    <a href="/update/<%=oneBook.id%>">Update Details</a>
+    <form action="/delete/<%= oneBook.id %>?_method=DELETE" method="post"></form>
+    <a href="/delete/<%=oneBook.id%>">Delete</a>
+
   </main>
 </body>
 

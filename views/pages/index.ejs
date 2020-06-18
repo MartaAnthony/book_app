@@ -12,12 +12,20 @@
   <main>
     <div class="books">
       <h1>My Book Collection</h1>
+      <h2><%=myBooks.length%></h2>
+      <select name=“bookshelf” id=“”>
+        <%totalBookShelf.forEach(shelf => {%>
+        <%console.log(totalBookShelf);%>
+        <option value="<%=shelf.bookshelf%>"><%=shelf.bookshelf%></option>
+        <% }) %>
+      </select>
       <% myBooks.forEach(book => {%>
       <section class="book">
         <img src="<%= book.image_url %>">
         <h3 class="title"><%= book.title %></h3>
         <h3 class="author"><%= book.author %></h3>
         <p class="description"><%= book.description %></p>
+        <p><%= book.bookshelf%></p>
         <a href="/books/<%= book.id %>">Details</a>
       </section>
       <% }) %>
