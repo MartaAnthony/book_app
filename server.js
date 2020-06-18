@@ -8,7 +8,7 @@ const pg = require('pg');
 const app = express();
 const methodOverride = require('method-override');
 const PORT = process.env.PORT || 3000;
-const client = new pg.Client(process.env.DATABASE_URL);
+const client = new pg.Client(process.env.HEROKU_POSTGRESQL_NAVY_URL);
 const errorAlert = (err, response) => {
   response.status(500).send('Sorry, something went wrong');
   console.log('error', err);
